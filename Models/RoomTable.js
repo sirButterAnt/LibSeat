@@ -12,7 +12,7 @@ const Room = sequelize.define('Room',{
         allowNull:false
              
     },
-    roomCondiation:{ 
+    roomCondition:{ 
         type:DataTypes.STRING,
         allowNull:false, 
     }
