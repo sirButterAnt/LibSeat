@@ -1,7 +1,8 @@
 
 const { DataTypes} = require('sequelize');
 const sequelize = require('../db');
-const Room = require('./Room.js');
+const Room = require('./RoomTable');
+const { FORCE } = require('sequelize/lib/index-hints');
 
 
 
@@ -36,9 +37,9 @@ const Seat = sequelize.define('Seat',{
 });
 
 
-Seat.hasOne(Room, { foreignKey: 'roomName' });
-Room.hasMany(ApplicationLetter, { foreignKey: 'roomName' });
+Seat.belongsTo(Room, { foreignKey: 'roomName' });
+Room.hasMany(Seat, { foreignKey: 'roomName' });
 
-RoomTable.sync({});
-SeatTable.sync({});
+Room.sync({FORCE: true});
+Seat.sync({FORCE: true});
 module.exports = Seat;

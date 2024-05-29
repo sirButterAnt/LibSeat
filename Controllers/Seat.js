@@ -17,6 +17,8 @@ exports.createSeat = async (req, res) => {
             allocationTime: msg.allocationTime,
             deallocationTime: msg.deallocationTime,
             roomName: msg.roomName})
+            console.log("seat is created");
+            res.status(200).json({message : "seat is created"});
         }else{
             seat.update({
                 seatId: msg.seatId,
@@ -26,12 +28,13 @@ exports.createSeat = async (req, res) => {
                 deallocationTime: msg.deallocationTime,
                 roomName: msg.roomName
                });
+            console.log("seat is updated");
+            res.status(200).json({message : "seat is updated"});
         }
-        console.log("seat is updated");
-        res.status(200).json({message : "seat is updated"});
+        
     } catch (error) {
-        console.error("Error setting seat:", error);
-        res.status(400).json({message : "Error setting seat:", error});
+        console.error("Error setting seat:");
+        res.status(400).json({message : "Error setting seat:"});
     }
 }
 
@@ -44,8 +47,8 @@ exports.getSeats = async (req, res)=>{
         console.log("seats are find");
         res.status(200).json(seats);
     } catch (error) {
-        console.error("Error geting seats:", error);
-        res.status(400).json({message : "Error geting seats:", error});
+        console.error("Error geting seats:");
+        res.status(400).json({message : "Error geting seats:"});
     }
 }
 exports.getSeat = async (req, res)=>{
@@ -57,20 +60,29 @@ exports.getSeat = async (req, res)=>{
         console.log("seat is find");
         res.status(200).json(seat);
     } catch (error) {
-        console.error("Error geting seat: ", error);
-        res.status(400).json({message : "Error geting seat: ", error});
+        console.error("Error geting seat: ");
+        res.status(400).json({message : "Error geting seat: "});
     }
 }
+
+
 
 exports.deleteSeat = async (req, res) => {
     try {
         const msg = req.body;
-        Seats.destroy({where :{seatId : msg.seatId, roomName : msg.roomName}});
-        console.log("seat is deleted");
-        res.status(200).json({message : "seat is deleted"});
+        seat = await Seats.findOne({where : {seatId : msg.seatId, roomName : msg.roomName}});
+        if (!seat){
+            console.error("seat is not found:");
+            res.status(400).json({message : "seat is not found:"});
+        }else{
+            Seats.destroy({where :{seatId : msg.seatId, roomName : msg.roomName}});
+            console.log("seat is deleted");
+            res.status(200).json({message : "seat is deleted"});
+        }
+        
     } catch (error) {
-        console.error("Error deleting seat:", error);
-        res.status(400).json({message : "Error deleting seat:", error});
+        console.error("Error deleting seat:");
+        res.status(400).json({message : "Error deleting seat:"});
     }
 }
  
@@ -80,12 +92,17 @@ exports.setSeat = async (req, res) => {
         const seat = await Seats.findOne({where:{
             roomName: msg.roomName, seatId : msg.seatId}
         });
-        seat.update(msg);
-        console.log("seat is updated");
-        res.status(200).json({message : "seat is updated"});
+        if(!seat){
+            console.error("seat is not found:");
+            res.status(400).json({message : "seat is not found:"});
+        }else{
+            seat.update(msg);
+            console.log("seat is updated");
+            res.status(200).json({message : "seat is updated"});
+        }
     } catch (error) {
         console.error("Error setting seat:", error);
-        res.status(400).json({message : "Error setting seat:", error});
+        res.status(400).json({message : "Error setting seat:"});
     }
 }
 /*
@@ -147,8 +164,8 @@ exports.allocateSeat = async(req, res) => {
                 console.log({message: "Seat is already allocated"});
             }
         } catch (error) {
-            console.error("Error allocating seat", error);
-            res.status(400).json({message : "Error allocating seat", error});
+            console.error("Error allocating seat");
+            res.status(400).json({message : "Error allocating seat"});
         }
     }
 
@@ -167,8 +184,8 @@ exports.deallocateSeat = async (req, res) => {
         console.log("Seat is deallocated");
         res.status(200).json({message : "Seat is deallocated"})
     } catch (error) {
-        console.error("Error deallocating seat:", error);
-        res.status(400).json({message: "Error deallocating seat:", error})
+        console.error("Error deallocating seat:");
+        res.status(400).json({message: "Error deallocating seat:"})
     }
 }
 

@@ -3,25 +3,29 @@ const router = express.Router();
 const seatController = require('../Controllers/Seat');
 
 
+router.route('/createSeat')
+    .post(seatController.createSeat);
+
 router.route('/getSeats')
-    .get(seatController.getAllSeats);
+    .get(seatController.getSeats);
 
 router.route('/getSeat')
-    .get(seatController.getSeatById);
+    .get(seatController.getSeat);
+
 
 router.route('/deleteSeat')
-    .delete(seatController.deleteSeatById);
+    .delete(seatController.deleteSeat);
 
 router.route('/setSeat')
-    .put(seatController.updateSeat);
-
+    .put(seatController.setSeat);
+/*
 router.route('/getSeatWorkingTime')
     .get(seatController.getWorkingTimeForSeat);
-
+*/
 router.route('/allocateSeat')
-    .put(seatController.allocateSeatById);
+    .put(seatController.allocateSeat);
 
 router.route('/deallocateSeat')
-    .put(seatController.deallocateSeatById);
+    .put(seatController.deallocateSeat);
 
 module.exports = router;
