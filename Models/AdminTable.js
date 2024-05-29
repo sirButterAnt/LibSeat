@@ -3,7 +3,7 @@ const sequelize = require('../db');
 
 
 
-const Admin = sequelize.define('Application',{
+const Admin = sequelize.define('Admin',{
     
 
     mail:{

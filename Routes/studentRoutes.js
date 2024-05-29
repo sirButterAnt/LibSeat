@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const StudentController = require('../controllers/Student');
+const StudentController = require('../Controllers/Student');
 
 router.route('/createStudent')
     .post(StudentController.createStudent);
@@ -20,13 +20,22 @@ router.route('/getStudent')
 router.route('/setStudent')
     .put(StudentController.setStudent);
 
+router.route('/registeredStudents')
+    .get(StudentController.registeredStudents);
+    /*
 router.route('/getWorkingTime')
     .get(StudentController.getWorkingTime);
+*/
+
 
 router.route('/getUnregisteredStudents')
     .get(StudentController.getUnregisteredStudents);
 
-router.route('/dontAcceptStudent')
-    .delete(StudentController.dontAcceptStudent);
+router.route('/uploadPhoto')
+    .post(StudentController.uploadPhoto);
+
+router.route('/downloadFile')
+    .get(StudentController.downloadFile);
+
 
 module.exports = router;
