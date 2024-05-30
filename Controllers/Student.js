@@ -1,4 +1,5 @@
 const Students = require("../Models/StudentTable.js");
+const StudentRegister = require("../Models/StudentRegisterTable.js")
 const nodemailer = require('nodemailer');
 const multer = require('multer');
 const fs = require('fs');
@@ -36,24 +37,21 @@ exports.createStudent = async (req, res) => {//////////////
     //const file = req.body;
     //const filePath = path.join('..', 'Files', student.filename);
     try{
-        const student = await Students.findOne({where : {mail : msg.mail}});
-        await Students.create({ 
+        
+        await StudentRegister.create({ 
         mail: msg.mail,
         studentName : msg.studentName,
         IDcardPath : "Files",
         studentNumber : msg.studentNumber,
-        deallocationTime : msg.deallocationTime,
-        allocationTime : msg.allocationTime,
         password : msg.password,
-        seatId : msg.seatId,
         phoneNumber : msg.phoneNumber,
         registerCondition : "initiated",
-        status : "Empty"
+        Id : 0
         })
         console.log("Student created");
         res.status(200).json({message: "Student created"});
     }catch(error){
-        console.error("Error creating student:");
+        console.error(error);
         res.status(400).json({message: "Error creating student:"});
     }
 }
@@ -61,7 +59,7 @@ exports.createStudent = async (req, res) => {//////////////
 exports.registerStudent = async (req, res) =>{
     try{
         const msg = req.body; 
-        const student = await Students.findOne({where :{ 
+        const student = await StudentRegister.findOne({where :{ 
         mail: msg.mail}
         })
         if (!student){
@@ -88,7 +86,7 @@ exports.registerStudent = async (req, res) =>{
 exports.disapproveStudent = async (req, res) => {
     try{
         const msg = req.body;
-        const student = await Students.findOne({where :{ 
+        const student = await StudentRegister.findOne({where :{ 
         mail: msg.mail
         }});
          if (!student){
@@ -114,7 +112,7 @@ exports.disapproveStudent = async (req, res) => {
 exports.deleteStudent = async (req, res) => {////file should also be deleted
     try{
         const msg = req.body;
-        const student = await Students.findOne({where : { 
+        const student = await StudentRegister.findOne({where : { 
         mail: msg.mail}
         })
         if (!student){
@@ -135,7 +133,7 @@ exports.deleteStudent = async (req, res) => {////file should also be deleted
 exports.registeredStudents = async (req, res) => {
     try{
         
-        const students = await Students.findAll({where : {registerCondition: "registered"}});
+        const students = await StudentRegister.findAll({where : {registerCondition: "registered"}});
         if(!students){
             console.error("no student found:");
             res.status(400).json({message :"No student found"});
@@ -152,9 +150,47 @@ exports.registeredStudents = async (req, res) => {
 exports.getStudent = async (req, res) => {
     try{
         const msg = req.body;
-        const student = await Students.findOne({where : { 
-        mail: msg.mail}
-        })
+        var student = await Students.findOne({where : {mail : msg.mail, status : "Allocated"} });
+        
+        if(student){
+            student = await StudentRegister.findOne({
+                where: {mail : msg.mail, Id : student.id
+                },
+                include: [{
+                    model: Students,
+                    attributes: ['id', 'mail', 'allocationTime', 'seatId', 'status']
+                }]
+        });
+            console.log(student);
+            res.status(200).json(student);
+            }
+        else if(!student){
+            console.error("Student not found:");
+            res.status(400).json({message :"Student not found"});
+        }else{
+            console.error(student);  ///////////mail
+            res.status(200).json(student);
+        }
+    }catch(error){
+        console.error(error);
+        res.status(400).json({message :"Error finding student:"})
+    }
+}
+
+exports.getStudentsLog = async(req, res) => {
+    try{
+        const msg = req.body;
+        var student = await Students.findOne({where : {mail : msg.mail, status : "Allocated"} });
+        
+        if(student){
+            student = await StudentRegister.findOne({
+                where: {mail : msg.mail, Id : student.id
+                },
+                include: [{
+                    model: Students,
+                    attributes: ['id', 'mail', 'allocationTime', 'seatId', 'status']
+                }]
+        });}
         if(!student){
             console.error("Student not found:");
             res.status(400).json({message :"Student not found"});
@@ -171,7 +207,7 @@ exports.getStudent = async (req, res) => {
 exports.setStudent = async(req, res) => {
     try {
         const msg = req.body;
-        const student = await Students.findOne({where:{
+        const student = await StudentRegister.findOne({where:{
             mail : msg.mail}
         });
         if(!student){
@@ -218,7 +254,7 @@ exports.getWorkingTime = async(req, res) => {
 */
 exports.getUnregisteredStudents = async(req, res) => {
     try {
-        const student = await Students.findAll({where : {registerCondition : "initiated" }});
+        const student = await StudentRegister.findAll({where : {registerCondition : "initiated" }});
         if(!student){
             console.log("no student found");
             res.status(200).json({message: "no student found"});
@@ -268,26 +304,6 @@ async function sendMail(receiverMail, mailSubject, text, feedback ){
 }
 
 
-exports.getUnregisteredStudents = async(req, res) => {
-    upload.single('file')(req, res, (err) => {
-        if (err) {
-            res.send(err);
-        } else {
-            if (req.file == undefined) {
-                res.send('No file selected!');
-            } else {
-                res.send(`File uploaded successfully: ${req.file.filename}`);
-            }
-        }
-    });
-};
-
-
-
-
-
-
-
 exports.uploadPhoto = async(req, res) => {
     upload.single('file') (req, res, async (err) => {
         if (err) {
@@ -299,7 +315,7 @@ exports.uploadPhoto = async(req, res) => {
                 res.status(400).send({message : 'No file selected!'});
             } else {
                 const mail = req.query.mail;
-                const student = await Students.findOne({where : {mail : mail}});
+                const student = await StudentRegister.findOne({where : {mail : mail}});
                 if(student){
                     console.log(student);                    
                     student.update({IDcardPath : "./Files/"+mail+"/"+ req.file.originalname});
@@ -317,7 +333,7 @@ exports.uploadPhoto = async(req, res) => {
 exports.downloadFile = async (req, res) => {
     try  {
         const msg = req.body;
-        const student = await Students.findOne({where : {mail : msg.mail}});
+        const student = await StudentRegister.findOne({where : {mail : msg.mail}});
         console.log(student);
         filePath = student.IDcardPath;
         console.log(filePath);

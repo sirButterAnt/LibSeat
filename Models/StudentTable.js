@@ -1,48 +1,29 @@
 
 const { DataTypes} = require('sequelize');
 const sequelize = require('../db');
-
+const StudentRegisterTable = require('./StudentRegisterTable.js');
+const SeatTable = require('./SeatTable.js')
 
 
 const Student = sequelize.define('Student',{
-    
-
-    mail:{
+    id:{
         primaryKey:true,
-        type:DataTypes.STRING,
-        allowNull:false
-             
+        type:DataTypes.INTEGER,
+        allowNull:false,
+        autoIncrement: true
     },
-    studentName:{ 
-        type:DataTypes.STRING,
-        allowNull:false,   
-    },IDcardPath:{
+    mail:{
         type:DataTypes.STRING,
         allowNull:false,
-    },studentNumber:{
-        type:DataTypes.INTEGER,
-        allowNull:false,  
     },deallocationTime:{
         type:DataTypes.TIME,
         allowNull:true, 
     }, allocationTime:{
         type:DataTypes.TIME,
         allowNull:true, 
-    },password:{
-        type:DataTypes.STRING,
-        allowNull:false, 
     },seatId:{
         type:DataTypes.STRING,
-        allowNull:true, 
-    },phoneNumber:{
-        type:DataTypes.INTEGER,
-        allowNull:false,
-    },registerCondition:{
-        type:DataTypes.STRING,
-        allowNull:false,
-    },feedBack:{
-        type:DataTypes.STRING,
-        allowNull:true,
+        allowNull:false, 
     },status:{ 
         type:DataTypes.STRING,
         allowNull:false,   
@@ -50,6 +31,16 @@ const Student = sequelize.define('Student',{
 });
 
 
+Student.belongsTo(StudentRegisterTable, { foreignKey: 'mail' });
+StudentRegisterTable.hasMany(Student, { foreignKey: 'mail' });
+
+Student.belongsTo(SeatTable, { foreignKey: 'seatId' });
+SeatTable.hasMany(Student, { foreignKey: 'seatId' });
+
 
 Student.sync({});
+StudentRegisterTable.sync({});
+
+
+
 module.exports = Student;

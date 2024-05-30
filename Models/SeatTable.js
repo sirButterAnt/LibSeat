@@ -32,14 +32,12 @@ const Seat = sequelize.define('Seat',{
         type:DataTypes.STRING,
         allowNull:false
     }
-   
-
 });
 
 
 Seat.belongsTo(Room, { foreignKey: 'roomName' });
 Room.hasMany(Seat, { foreignKey: 'roomName' });
 
-Room.sync({FORCE: true});
-Seat.sync({FORCE: true});
+Room.sync({});
+Seat.sync({});
 module.exports = Seat;

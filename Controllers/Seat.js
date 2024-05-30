@@ -1,7 +1,7 @@
 
 const Seats = require("../Models/SeatTable.js");
-
-
+const Students = require("../Models/StudentTable");
+const StudentRegister = require("../Models/StudentRegisterTable.js")
 
 exports.createSeat = async (req, res) => {
     try {
@@ -13,9 +13,6 @@ exports.createSeat = async (req, res) => {
             await Seats.create({
             seatId: msg.seatId,
             seatStatus: "Empty",
-            studentMail: msg.studentMail,
-            allocationTime: msg.allocationTime,
-            deallocationTime: msg.deallocationTime,
             roomName: msg.roomName})
             console.log("seat is created");
             res.status(200).json({message : "seat is created"});
@@ -155,8 +152,14 @@ exports.allocateSeat = async(req, res) => {
             const seat = await Seats.findOne({where:{
                 roomName: msg.roomName, seatId : msg.seatId}
             });
-            if (seat.seatStatus === "Empty"){
-                seat.update({seatStatus : "Allocated"}) ;
+            const student = await StudentRegister.findOne({where : { 
+                mail : msg.mail
+            }})
+            if (seat.seatStatus === "Empty" && student.Id === 0){
+                await seat.update({seatStatus : "Allocated", studentMail : msg.mail, allocationTime : msg.allocationTime}) ;
+                await Students.create({mail : msg.mail,allocationTime : msg.allocationTime, status: "Allocated",seatId : msg.seatId });
+                std = await Students.findOne({where : {mail : msg.mail, status : "Allocated"}});
+                await student.update({Id : std.id});
                 res.status(200).json({message: "Seat succesfully allocated"});
                 console.log({message: "Seat succesfully allocated"});
             }else{
@@ -164,7 +167,7 @@ exports.allocateSeat = async(req, res) => {
                 console.log({message: "Seat is already allocated"});
             }
         } catch (error) {
-            console.error("Error allocating seat");
+            console.error(error);
             res.status(400).json({message : "Error allocating seat"});
         }
     }
@@ -175,16 +178,23 @@ exports.deallocateSeat = async (req, res) => {
         const seat = await Seats.findOne({where:{
             roomName: msg.roomName, seatId : msg.seatId}
         });
-        if (seat.seatStatus === "Allocated"){
-            seat.update({seatStatus : "Empty"});
+        
+        const student = await StudentRegister.findOne({where : { 
+            mail : seat.studentMail
+        }})
+        if (seat.seatStatus === "Allocated" && student.Id !== 0){
+            await seat.update({seatStatus : "Empty", studentMail: "", allocationTime : ""});
+            std = await Students.findOne({id : student.Id});
+            await std.update({status : "Deallocated"});
+            await student.update({Id : 0});
+            res.status(200).json({message: "Seat succesfully deallocated"});
+            console.log({message: "Seat succesfully deallocated"});
         }else {
             res.status(400).json({message: "Seat is not allocated"});
             console.log({message: "Seat is not allocated"});
         }
-        console.log("Seat is deallocated");
-        res.status(200).json({message : "Seat is deallocated"})
     } catch (error) {
-        console.error("Error deallocating seat:");
+        console.error(error);
         res.status(400).json({message: "Error deallocating seat:"})
     }
 }
