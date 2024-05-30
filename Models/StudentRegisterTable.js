@@ -35,8 +35,13 @@ const StudentRegister = sequelize.define('StudentRegister',{
         type:DataTypes.INTEGER,
         allowNull:true,   
     }
+    
 });
+StudentRegister.beforeCreate(async(student)=>{
+    const salt = await bcrypt.genSalt();
+    student.password = await bcrypt.hash(student.password,salt);
 
+});
 
 
 StudentRegister.sync({});

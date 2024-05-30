@@ -6,6 +6,39 @@ const fs = require('fs');
 const path = require('path');
 
 
+exports.login = async(req,res)=>{
+    try {
+        const user = await StudentRegister.findOne({where:{mail:req.body.mail}});
+        if(!user){
+            return res.status(401).json({status:'fail',message:'Email or password is wrong'});
+        
+        }
+        const isMatch = await bcrypt.compare(req.body.password,user.password);
+
+        if(!isMatch){
+            return res.status(401).json({status:'fail',message:'Email or password is wrong'})
+        }
+        // generate token
+        const token = jwt.generateToken(user);
+
+        // set cookies
+
+        res.cookie('token',token,{httpOnly:true,secure:true});
+
+        res.status(200).json({
+            status:'success',
+            loggedUser:user,
+    
+            });
+
+
+        
+
+    } catch (error) {
+        return res.status(400).json({status:'fail',error:error})
+    }
+}
+
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         const uploadDir = './Files/'+req.query.mail;

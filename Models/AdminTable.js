@@ -1,9 +1,9 @@
 const { DataTypes} = require('sequelize');
 const sequelize = require('../db');
+const bcrypt = require('bcrypt');
 
 
-
-const Admin = sequelize.define('Admin',{
+const Admin = sequelize.define('Application',{
     
 
     mail:{
@@ -21,6 +21,12 @@ const Admin = sequelize.define('Admin',{
         type:DataTypes.STRING,
         allowNull:false,   
     },
+
+});
+
+Admin.beforeCreate(async(admin)=>{
+    const salt = await bcrypt.genSalt();
+    admin.password = await bcrypt.hash(admin.password,salt);
 
 });
 

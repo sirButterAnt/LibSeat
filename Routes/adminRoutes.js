@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const adminController = require('../Controllers/Admin');
 
+router.route('adminLogin')
+    .post(adminController.login);
+
 router.route('/getAdmin')
     .get(adminController.getAdmin);
 
