@@ -1,6 +1,6 @@
 const { DataTypes} = require('sequelize');
 const sequelize = require('../db');
-
+const bcrypt = require('bcrypt');
 
 
 const Admin = sequelize.define('Application',{
@@ -21,6 +21,12 @@ const Admin = sequelize.define('Application',{
         type:DataTypes.STRING,
         allowNull:false,   
     },
+
+});
+
+Admin.beforeCreate(async(admin)=>{
+    const salt = await bcrypt.genSalt();
+    admin.password = await bcrypt.hash(admin.password,salt);
 
 });
 
