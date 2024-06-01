@@ -34,6 +34,10 @@ const StudentRegister = sequelize.define('StudentRegister', {
     }, Id: {
         type: DataTypes.INTEGER,
         allowNull: true,
+    },
+    verifyToken:{
+        type:DataTypes.STRING,
+        allowNull:true
     }
 
 });

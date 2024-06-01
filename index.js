@@ -32,6 +32,23 @@ const adminRoutes = require('./Routes/adminRoutes');
 const roomRoutes = require('./Routes/roomRoutes');
 const seatRoutes = require('./Routes/SeatRoutes');
 
+
+// verify token
+const StudentRegister = require("./Models/StudentRegisterTable.js")
+app.get('/verifyLink/:token', async(req,res) =>{
+    const token = req.params.token;
+    try {
+        const user = await StudentRegister.findOne({where:{verifyToken:token}});
+        if(user){
+            user.registerCondition ='registered'
+            user.save();
+        }
+        return res.status(200).json({message:'success'});
+    } catch (error) {
+        return res.status(400).json({message:'bad request'});
+    }
+})
+
 // logout
 
 app.get('/logout', async (res, req) => {

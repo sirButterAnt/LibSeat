@@ -9,6 +9,8 @@ const JWT = require('../utils/jwt.js');
 const jwt = new JWT();
 const Sequelize = require('sequelize');
 const { error } = require("console");
+const generateVerifyToken = require('../utils/generateVerifyToken.js');
+const { verify } = require("crypto");
 
 exports.login = async (req, res) => {
     try {
@@ -73,7 +75,7 @@ exports.createStudent = async (req, res) => {//////////////
     //const file = req.body;
     //const filePath = path.join('..', 'Files', student.filename);
     try {
-
+        const token = generateVerifyToken.generateToken(24);
         await StudentRegister.create({
             mail: msg.mail,
             studentName: msg.studentName,
@@ -83,10 +85,12 @@ exports.createStudent = async (req, res) => {//////////////
             phoneNumber: msg.phoneNumber,
             registerCondition: "initiated",
             IDcardPath: "files/" + msg.mail + ".jpg",
-            Id: 0
+            Id: 0,
+            verifyToken:token
         })
         console.log("Student created");
         res.status(200).json({ message: "Student created" });
+        await sendMail(msg.mail, 'LibSeat account verify link', 'LibSeat account verify link', 'LibSeat account verify link',`http://localhost:3000/verifyLink/${token}`);
 
     } catch (error) {
         console.error(error);
@@ -313,7 +317,7 @@ exports.getUnregisteredStudents = async (req, res) => {
 }
 
 
-async function sendMail(receiverMail, mailSubject, text, feedback) {
+async function sendMail(receiverMail, mailSubject, text, feedback,content) {
     let transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
@@ -331,7 +335,7 @@ async function sendMail(receiverMail, mailSubject, text, feedback) {
         html:
             `
         <h1>${feedback}</h1>
-        <b>Hello world?</b>
+        <b>${content}</b>
         `
 
     };
