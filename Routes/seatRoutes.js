@@ -7,7 +7,7 @@ router.route('/createSeat')
     .post(seatController.createSeat);
 
 router.route('/getSeats')
-    .get(seatController.getSeats);
+    .post(seatController.getSeats);
 
 router.route('/getSeat')
     .get(seatController.getSeat);

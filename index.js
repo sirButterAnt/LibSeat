@@ -1,16 +1,19 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+const cors = require('cors');
+
 
 const path = './config.env'
-require('dotenv').config({path:path});
+require('dotenv').config({ path: path });
 
 
 //db
-const sequelize =  require('./db');
+const sequelize = require('./db');
 
 
 const app = express();
+app.use(cors());
 
 //json 
 app.use(bodyParser.json());
@@ -31,25 +34,25 @@ const seatRoutes = require('./Routes/SeatRoutes');
 
 // logout
 
-app.get('/logout',async(res,req) =>{
+app.get('/logout', async (res, req) => {
     try {
-    
+
         //inaktif token
         res.cookie('token', '', { httpOnly: true, maxAge: 0 });
         res.status(200).json({
-            status:'success',
-            message:"logout successfull"
+            status: 'success',
+            message: "logout successfull"
         })
-        
+
     } catch (error) {
         res.status(400).json({
-            error:error
+            error: error
         });
     }
 })
 
 //routes
-app.use('/LibSeat',adminRoutes);
+app.use('/LibSeat', adminRoutes);
 app.use('/LibSeat', roomRoutes);
 app.use('/LibSeat', seatRoutes);
 app.use('/LibSeat', StudentRoutes);
@@ -72,4 +75,4 @@ sequelize
         app.listen(process.env.PORT);
         console.log(process.env.PORT)
     })
-    .catch(err => console.log(err,'error handle'));
+    .catch(err => console.log(err, 'error handle'));

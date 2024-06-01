@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const StudentController = require('../Controllers/Student');
 
+router.route('/loginStudent')
+    .post(StudentController.login);
+
 router.route('/createStudent')
     .post(StudentController.createStudent);
 
@@ -15,16 +18,16 @@ router.route('/deleteStudent')
     .delete(StudentController.deleteStudent);
 
 router.route('/getStudent')
-    .get(StudentController.getStudent);
+    .post(StudentController.getStudent);
 
 router.route('/setStudent')
     .put(StudentController.setStudent);
 
 router.route('/registeredStudents')
     .get(StudentController.registeredStudents);
-    /*
+/*
 router.route('/getWorkingTime')
-    .get(StudentController.getWorkingTime);
+.get(StudentController.getWorkingTime);
 */
 
 

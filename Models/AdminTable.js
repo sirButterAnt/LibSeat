@@ -1,32 +1,32 @@
-const { DataTypes} = require('sequelize');
+const { DataTypes } = require('sequelize');
 const sequelize = require('../db');
 const bcrypt = require('bcrypt');
 
 
-const Admin = sequelize.define('Application',{
-    
+const Admin = sequelize.define('Admin', {
 
-    mail:{
-        primaryKey:true,
-        type:DataTypes.STRING,
-        allowNull:false
-             
+
+    mail: {
+        primaryKey: true,
+        type: DataTypes.STRING,
+        allowNull: false
+
     },
-    phoneNumber:{ 
-        type:DataTypes.STRING,
-        allowNull:false, 
-        
+    phoneNumber: {
+        type: DataTypes.STRING,
+        allowNull: false,
+
     },
-    password:{ 
-        type:DataTypes.STRING,
-        allowNull:false,   
+    password: {
+        type: DataTypes.STRING,
+        allowNull: false,
     },
 
 });
 
-Admin.beforeCreate(async(admin)=>{
+Admin.beforeCreate(async (admin) => {
     const salt = await bcrypt.genSalt();
-    admin.password = await bcrypt.hash(admin.password,salt);
+    admin.password = await bcrypt.hash(admin.password, salt);
 
 });
 
