@@ -1,25 +1,25 @@
 
 const Seats = require("../Models/SeatTable.js");
-
-
+const Students = require("../Models/StudentTable");
+const StudentRegister = require("../Models/StudentRegisterTable.js")
 
 exports.createSeat = async (req, res) => {
     try {
         const msg = req.body;
-        const seat = await Seats.findOne({where:{
-            roomName: msg.roomName, seatId : msg.seatId}
+        const seat = await Seats.findOne({
+            where: {
+                roomName: msg.roomName, seatId: msg.seatId
+            }
         });
-        if(!seat){
+        if (!seat) {
             await Seats.create({
-            seatId: msg.seatId,
-            seatStatus: "Empty",
-            studentMail: msg.studentMail,
-            allocationTime: msg.allocationTime,
-            deallocationTime: msg.deallocationTime,
-            roomName: msg.roomName})
+                seatId: msg.seatId,
+                seatStatus: "Empty",
+                roomName: msg.roomName
+            })
             console.log("seat is created");
-            res.status(200).json({message : "seat is created"});
-        }else{
+            res.status(200).json({ message: "seat is created" });
+        } else {
             seat.update({
                 seatId: msg.seatId,
                 seatStatus: msg.seatStatus,
@@ -27,41 +27,52 @@ exports.createSeat = async (req, res) => {
                 allocationTime: msg.allocationTime,
                 deallocationTime: msg.deallocationTime,
                 roomName: msg.roomName
-               });
+            });
             console.log("seat is updated");
-            res.status(200).json({message : "seat is updated"});
+            res.status(200).json({ message: "seat is updated" });
         }
-        
+
     } catch (error) {
         console.error("Error setting seat:");
-        res.status(400).json({message : "Error setting seat:"});
+        res.status(400).json({ message: "Error setting seat:" });
     }
 }
 
-exports.getSeats = async (req, res)=>{
+exports.getSeats = async (req, res) => {
     try {
         const msg = req.body;
-        const seats = await Seats.findAll({where :{
-            roomName: msg.roomName}
+        const seats = await Seats.findAll({
+            where: {
+                roomName: msg.roomName
+            }
         });
-        console.log("seats are find");
-        res.status(200).json(seats);
+
+        // Transform the array into an object
+        const seatsObject = {};
+        seats.forEach(seat => {
+            seatsObject[seat.seatId] = seat;
+        });
+
+        console.log("Seats found");
+        res.status(200).json(seatsObject);
     } catch (error) {
-        console.error("Error geting seats:");
-        res.status(400).json({message : "Error geting seats:"});
+        console.error("Error getting seats:", error);
+        res.status(400).json({ message: "Error getting seats" });
     }
-}
-exports.getSeat = async (req, res)=>{
+};
+exports.getSeat = async (req, res) => {
     try {
         const msg = req.body;
-        const seat = await Seats.findOne({where :{
-            roomName: msg.roomName, seatId : msg.seatId}
+        const seat = await Seats.findOne({
+            where: {
+                roomName: msg.roomName, seatId: msg.seatId
+            }
         });
         console.log("seat is find");
         res.status(200).json(seat);
     } catch (error) {
         console.error("Error geting seat: ");
-        res.status(400).json({message : "Error geting seat: "});
+        res.status(400).json({ message: "Error geting seat: " });
     }
 }
 
@@ -70,39 +81,41 @@ exports.getSeat = async (req, res)=>{
 exports.deleteSeat = async (req, res) => {
     try {
         const msg = req.body;
-        seat = await Seats.findOne({where : {seatId : msg.seatId, roomName : msg.roomName}});
-        if (!seat){
+        seat = await Seats.findOne({ where: { seatId: msg.seatId, roomName: msg.roomName } });
+        if (!seat) {
             console.error("seat is not found:");
-            res.status(400).json({message : "seat is not found:"});
-        }else{
-            Seats.destroy({where :{seatId : msg.seatId, roomName : msg.roomName}});
+            res.status(400).json({ message: "seat is not found:" });
+        } else {
+            Seats.destroy({ where: { seatId: msg.seatId, roomName: msg.roomName } });
             console.log("seat is deleted");
-            res.status(200).json({message : "seat is deleted"});
+            res.status(200).json({ message: "seat is deleted" });
         }
-        
+
     } catch (error) {
         console.error("Error deleting seat:");
-        res.status(400).json({message : "Error deleting seat:"});
+        res.status(400).json({ message: "Error deleting seat:" });
     }
 }
- 
+
 exports.setSeat = async (req, res) => {
     try {
         const msg = req.body;
-        const seat = await Seats.findOne({where:{
-            roomName: msg.roomName, seatId : msg.seatId}
+        const seat = await Seats.findOne({
+            where: {
+                roomName: msg.roomName, seatId: msg.seatId
+            }
         });
-        if(!seat){
+        if (!seat) {
             console.error("seat is not found:");
-            res.status(400).json({message : "seat is not found:"});
-        }else{
+            res.status(400).json({ message: "seat is not found:" });
+        } else {
             seat.update(msg);
             console.log("seat is updated");
-            res.status(200).json({message : "seat is updated"});
+            res.status(200).json({ message: "seat is updated" });
         }
     } catch (error) {
         console.error("Error setting seat:", error);
-        res.status(400).json({message : "Error setting seat:"});
+        res.status(400).json({ message: "Error setting seat:" });
     }
 }
 /*
@@ -147,45 +160,68 @@ exports.getWorkigTime = async(req, res) => {
     }
 }
 */
-exports.allocateSeat = async(req, res) => {
-        try {
-            
-            const msg = req.body;
-            console.log(msg);
-            const seat = await Seats.findOne({where:{
-                roomName: msg.roomName, seatId : msg.seatId}
-            });
-            if (seat.seatStatus === "Empty"){
-                seat.update({seatStatus : "Allocated"}) ;
-                res.status(200).json({message: "Seat succesfully allocated"});
-                console.log({message: "Seat succesfully allocated"});
-            }else{
-                res.status(400).json({message: "Seat is already allocated"});
-                console.log({message: "Seat is already allocated"});
+exports.allocateSeat = async (req, res) => {
+    try {
+
+        const msg = req.body;
+        console.log(msg);
+        const seat = await Seats.findOne({
+            where: {
+                roomName: msg.roomName, seatId: msg.seatId
             }
-        } catch (error) {
-            console.error("Error allocating seat");
-            res.status(400).json({message : "Error allocating seat"});
+        });
+        const student = await StudentRegister.findOne({
+            where: {
+                mail: msg.mail
+            }
+        })
+        const now = new Date();
+        if (seat.seatStatus === "Empty" && student.Id === 0) {
+            await seat.update({ seatStatus: "Allocated", studentMail: msg.mail, allocationTime: now });
+            await Students.create({ mail: msg.mail, allocationTime: now, status: "Allocated", seatId: msg.seatId, roomName: msg.roomName });
+            std = await Students.findOne({ where: { mail: msg.mail, status: "Allocated" } });
+            await student.update({ Id: std.id });
+            res.status(200).json({ message: "Seat succesfully allocated" });
+            console.log({ message: "Seat succesfully allocated" });
+        } else {
+            res.status(400).json({ message: "Seat is already allocated" });
+            console.log({ message: "Seat is already allocated" });
         }
+    } catch (error) {
+        console.error(error);
+        res.status(400).json({ message: "Error allocating seat" });
     }
+}
 
 exports.deallocateSeat = async (req, res) => {
     try {
         const msg = req.body;
-        const seat = await Seats.findOne({where:{
-            roomName: msg.roomName, seatId : msg.seatId}
+        const seat = await Seats.findOne({
+            where: {
+                roomName: msg.roomName, seatId: msg.seatId, studentMail: msg.studentMail
+            }
         });
-        if (seat.seatStatus === "Allocated"){
-            seat.update({seatStatus : "Empty"});
-        }else {
-            res.status(400).json({message: "Seat is not allocated"});
-            console.log({message: "Seat is not allocated"});
+
+        const student = await StudentRegister.findOne({
+            where: {
+                mail: seat.studentMail
+            }
+        })
+        const now = new Date();
+        if (seat.seatStatus === "Allocated" && student.Id !== 0) {
+            await seat.update({ seatStatus: "Empty", studentMail: "", deallocationTime: now });
+            std = await Students.findOne({ where: { id: student.Id } });
+            await std.update({ status: "Deallocated", deallocationTime: now });
+            await student.update({ Id: 0 });
+            res.status(200).json({ message: "Seat succesfully deallocated" });
+            console.log({ message: "Seat succesfully deallocated" });
+        } else {
+            res.status(400).json({ message: "Seat is not allocated" });
+            console.log({ message: "Seat is not allocated" });
         }
-        console.log("Seat is deallocated");
-        res.status(200).json({message : "Seat is deallocated"})
     } catch (error) {
-        console.error("Error deallocating seat:");
-        res.status(400).json({message: "Error deallocating seat:"})
+        console.error(error);
+        res.status(400).json({ message: "Error deallocating seat:" })
     }
 }
 

@@ -1,55 +1,50 @@
 
-const { DataTypes} = require('sequelize');
+const { DataTypes } = require('sequelize');
 const sequelize = require('../db');
+const StudentRegisterTable = require('./StudentRegisterTable.js');
+const SeatTable = require('./SeatTable.js');
+const { FORCE } = require('sequelize/lib/index-hints');
 
 
-
-const Student = sequelize.define('Student',{
-    
-
-    mail:{
-        primaryKey:true,
-        type:DataTypes.STRING,
-        allowNull:false
-             
+const Student = sequelize.define('Student', {
+    id: {
+        primaryKey: true,
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        autoIncrement: true
     },
-    studentName:{ 
-        type:DataTypes.STRING,
-        allowNull:false,   
-    },IDcardPath:{
-        type:DataTypes.STRING,
-        allowNull:false,
-    },studentNumber:{
-        type:DataTypes.INTEGER,
-        allowNull:false,  
-    },deallocationTime:{
-        type:DataTypes.TIME,
-        allowNull:true, 
-    }, allocationTime:{
-        type:DataTypes.TIME,
-        allowNull:true, 
-    },password:{
-        type:DataTypes.STRING,
-        allowNull:false, 
-    },seatId:{
-        type:DataTypes.STRING,
-        allowNull:true, 
-    },phoneNumber:{
-        type:DataTypes.INTEGER,
-        allowNull:false,
-    },registerCondition:{
-        type:DataTypes.STRING,
-        allowNull:false,
-    },feedBack:{
-        type:DataTypes.STRING,
-        allowNull:true,
-    },status:{ 
-        type:DataTypes.STRING,
-        allowNull:false,   
+    mail: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    }, deallocationTime: {
+        type: DataTypes.DATE,
+        allowNull: true,
+    }, allocationTime: {
+        type: DataTypes.DATE,
+        allowNull: true,
+    }, seatId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+    }, status: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    }, roomName: {
+        type: DataTypes.STRING,
+        allowNull: false
     }
 });
 
 
+Student.belongsTo(StudentRegisterTable, { foreignKey: 'mail' });
+StudentRegisterTable.hasMany(Student, { foreignKey: 'mail' });
 
-Student.sync({});
+Student.belongsTo(SeatTable, { foreignKey: 'seatId' });
+SeatTable.hasMany(Student, { foreignKey: 'seatId' });
+
+
+Student.sync({ FORCE: true });
+StudentRegisterTable.sync({ FORCE: true });
+
+
+
 module.exports = Student;
